@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace lib
+namespace lib2
 {
-    class Program
+    public class MyClass : lib1.IBaseInterface
     {
-        static void Main(string[] args)
-        {
-        }
     }
 }
