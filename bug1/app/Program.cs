@@ -43,86 +43,74 @@ namespace app
             var assemblyFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lib2.dll");
             var assembly = Assembly.LoadFrom(assemblyFilePath);
 
-            var exceptionCaught = false;
+            Exception caughtException = null;
 
             try
             {
                 var types = assembly.DefinedTypes;
             }
-            catch (ReflectionTypeLoadException)
-            {
-                exceptionCaught = true;
-            }
             catch (Exception ex)
             {
-                Console.WriteLine($"Caught unexpected exception: {ex.GetType().Name}");
-                throw;
+                caughtException = ex;
             }
 
-            if (expectException)
-            {
-                if (exceptionCaught)
-                {
-                    Console.WriteLine($"EXPECTED: {nameof(ReflectionTypeLoadException)}.");
-                }
-                else
-                {
-                    Console.WriteLine($"UNEXPECTED: no {nameof(ReflectionTypeLoadException)}");
-                }
-            }
-            else
-            {
-                if (exceptionCaught)
-                {
-                    Console.WriteLine($"UNEXPECTED: {nameof(ReflectionTypeLoadException)}");
-                }
-                else
-                {
-                    Console.WriteLine($"EXPECTED: no {nameof(ReflectionTypeLoadException)}.");
-                }
-            }
+            TestForException<ReflectionTypeLoadException>(expectException, caughtException);
         }
 
         private static void CreateClass(bool expectException)
         {
-            var exceptionCaught = false;
+            Exception caughtException = null;
 
             try
             {
                 InnerCreateClass();
             }
-            catch (FileNotFoundException)
+            catch (Exception ex)
             {
-                exceptionCaught = true;
+                caughtException = ex;
             }
 
-            if (expectException)
-            {
-                if (exceptionCaught)
-                {
-                    Console.WriteLine($"EXPECTED: {nameof(FileNotFoundException)}.");
-                }
-                else
-                {
-                    Console.WriteLine($"UNEXPECTED: no {nameof(FileNotFoundException)}");
-                }
-            }
-            else
-            {
-                if (exceptionCaught)
-                {
-                    Console.WriteLine($"UNEXPECTED: {nameof(FileNotFoundException)}");
-                }
-                else
-                {
-                    Console.WriteLine($"EXPECTED: no {nameof(FileNotFoundException)}.");
-                }
-            }
+            TestForException<FileNotFoundException>(expectException, caughtException);
         }
 
         private static void InnerCreateClass()
         {
             var c = new lib2.MyClass();
+        }
+
+        private static void TestForException<TException>(bool isExpected, Exception caughtException)
+            where TException : Exception
+        {
+            if (isExpected)
+            {
+                if (caughtException != null)
+                {
+                    if (caughtException is TException)
+                    {
+                        Console.WriteLine($"EXPECTED: caught {typeof(TException).FullName}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"UNEXPECTED: no {typeof(TException).FullName} thrown, caught {caughtException.GetType().FullName} instead");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"UNEXPECTED: no exception thrown!");
+                }
+            }
+            else
+            {
+                if (caughtException != null)
+                {
+                    Console.WriteLine($"UNEXPECTED: caught {caughtException.GetType().FullName}");
+                }
+                else
+                {
+                    Console.WriteLine($"EXPECTED: no {typeof(TException).FullName} thrown");
+                }
+            }
+
         }
     }
 }
