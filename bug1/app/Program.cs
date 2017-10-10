@@ -54,7 +54,7 @@ namespace app
                 caughtException = ex;
             }
 
-            TestForException<ReflectionTypeLoadException>(expectException, caughtException);
+            TestForException<ReflectionTypeLoadException>(nameof(LoadLib2), expectException, caughtException);
         }
 
         private static void CreateClass(bool expectException)
@@ -70,7 +70,7 @@ namespace app
                 caughtException = ex;
             }
 
-            TestForException<FileNotFoundException>(expectException, caughtException);
+            TestForException<FileNotFoundException>(nameof(CreateClass), expectException, caughtException);
         }
 
         private static void InnerCreateClass()
@@ -78,7 +78,7 @@ namespace app
             var c = new lib2.MyClass();
         }
 
-        private static void TestForException<TException>(bool isExpected, Exception caughtException)
+        private static void TestForException<TException>(string name, bool isExpected, Exception caughtException)
             where TException : Exception
         {
             if (isExpected)
@@ -87,27 +87,27 @@ namespace app
                 {
                     if (caughtException is TException)
                     {
-                        Console.WriteLine($"EXPECTED: caught {typeof(TException).FullName}");
+                        Console.WriteLine($"SUCCESS({name}): Caught {typeof(TException).FullName}");
                     }
                     else
                     {
-                        Console.WriteLine($"UNEXPECTED: no {typeof(TException).FullName} thrown, caught {caughtException.GetType().FullName} instead");
+                        Console.WriteLine($"FAIL({name}): No {typeof(TException).FullName} thrown, caught {caughtException.GetType().FullName} instead");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"UNEXPECTED: no exception thrown!");
+                    Console.WriteLine($"FAIL({name}): Expected to catch {typeof(TException).FullName}, but no exception was thrown");
                 }
             }
             else
             {
                 if (caughtException != null)
                 {
-                    Console.WriteLine($"UNEXPECTED: caught {caughtException.GetType().FullName}");
+                    Console.WriteLine($"FAIL({name}): Did not expect any exception, but caught {caughtException.GetType().FullName}");
                 }
                 else
                 {
-                    Console.WriteLine($"EXPECTED: no {typeof(TException).FullName} thrown");
+                    Console.WriteLine($"SUCCESS({name}): No {typeof(TException).FullName} thrown");
                 }
             }
 
